@@ -48,6 +48,8 @@ bb::config::load() {
 #######################################
 bb::config::get() {
   local path="$1"
+  # Ensure yq path starts with a dot
+  [[ "$path" != .* ]] && path=".$path"
   local config
   config=$(bb::config::load) || return 1
   echo "$config" | yq eval "${path}" -

@@ -848,7 +848,7 @@ cmd_schedule_status() {
 
   if [[ -f "$plist_path" ]]; then
     local interval
-    interval=$(yq eval '.StartInterval' "$plist_path" 2>/dev/null || echo "unknown")
+    interval=$(plutil -extract StartInterval raw "$plist_path" 2>/dev/null || echo "3600")
     local interval_h=$((interval / 3600))
     bb::output::print "Schedule: ✅ installed (every ${interval_h} hour(s))"
 
