@@ -1,4 +1,4 @@
-# 🧠 brain-backup
+# 🧠 brain-dump
 
 Opinionated, encrypted backup for AI agent memory.
 
@@ -8,15 +8,15 @@ memory directories to S3-compatible storage (Backblaze B2, AWS S3, local).
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/philipbankier/brain-backup/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/philipbankier/brain-dump/main/install.sh | bash
 ```
 
 Or manually:
 
 ```bash
-git clone https://github.com/philipbankier/brain-backup.git
-cd brain-backup
-chmod +x brain-backup
+git clone https://github.com/philipbankier/brain-dump.git
+cd brain-dump
+chmod +x brain-dump
 export PATH="$PWD:$PATH"
 ```
 
@@ -38,96 +38,96 @@ export B2_ACCOUNT_ID="your-b2-key-id"
 export B2_ACCOUNT_KEY="your-b2-application-key"
 
 # 2. Initialize
-brain-backup init
+brain-dump init
 
 # 3. Take your first backup
-brain-backup snapshot
+brain-dump snapshot
 
 # 4. Check health
-brain-backup status
+brain-dump status
 
 # 5. Schedule hourly backups (macOS)
-brain-backup schedule install
+brain-dump schedule install
 ```
 
 ## Commands
 
-### `brain-backup init`
+### `brain-dump init`
 Interactive setup. Choose backend (B2, S3, local), bucket, and agent profiles.
-Creates `~/.config/brain-backup/config.yaml` and initializes the restic repo.
+Creates `~/.config/brain-dump/config.yaml` and initializes the restic repo.
 
 ```bash
-brain-backup init                  # Interactive
-brain-backup init --backend b2     # Skip backend prompt
+brain-dump init                  # Interactive
+brain-dump init --backend b2     # Skip backend prompt
 ```
 
-### `brain-backup snapshot`
+### `brain-dump snapshot`
 Take an incremental backup of all configured agent memory directories.
 
 ```bash
-brain-backup snapshot              # All profiles
-brain-backup snapshot --profile openclaw  # Single profile
-brain-backup snapshot --dry-run    # Preview without running
-brain-backup snapshot --json       # Machine-readable output
+brain-dump snapshot              # All profiles
+brain-dump snapshot --profile openclaw  # Single profile
+brain-dump snapshot --dry-run    # Preview without running
+brain-dump snapshot --json       # Machine-readable output
 ```
 
-### `brain-backup restore`
+### `brain-dump restore`
 Restore files from a snapshot. **Never auto-overwrites** existing files.
 
 ```bash
-brain-backup restore latest                           # Restore to ~/brain-backup-restore-<timestamp>
-brain-backup restore abc123 --target ~/my-restore     # Specific snapshot + target dir
-brain-backup restore latest --dry-run                 # Preview
+brain-dump restore latest                           # Restore to ~/brain-dump-restore-<timestamp>
+brain-dump restore abc123 --target ~/my-restore     # Specific snapshot + target dir
+brain-dump restore latest --dry-run                 # Preview
 ```
 
-### `brain-backup list`
-Show backup history (only brain-backup-tagged snapshots).
+### `brain-dump list`
+Show backup history (only brain-dump-tagged snapshots).
 
 ```bash
-brain-backup list                  # All snapshots
-brain-backup list --latest 5       # Last 5
-brain-backup list --json           # Machine-readable
+brain-dump list                  # All snapshots
+brain-dump list --latest 5       # Last 5
+brain-dump list --json           # Machine-readable
 ```
 
-### `brain-backup status`
+### `brain-dump status`
 Show backup health: repo reachable, latest snapshot age, total stored, schedule.
 
 ```bash
-brain-backup status                # Human-readable
-brain-backup status --json         # Machine-readable
+brain-dump status                # Human-readable
+brain-dump status --json         # Machine-readable
 ```
 
-### `brain-backup prune`
+### `brain-dump prune`
 Apply retention policy from config (runs `restic forget --prune`).
 
 ```bash
-brain-backup prune                 # Apply retention
-brain-backup prune --dry-run       # Preview what would be removed
+brain-dump prune                 # Apply retention
+brain-dump prune --dry-run       # Preview what would be removed
 ```
 
-### `brain-backup schedule`
+### `brain-dump schedule`
 Manage macOS launchd scheduled backups.
 
 ```bash
-brain-backup schedule install      # Install hourly launchd job
-brain-backup schedule remove       # Remove launchd job
-brain-backup schedule status       # Show schedule state
+brain-dump schedule install      # Install hourly launchd job
+brain-dump schedule remove       # Remove launchd job
+brain-dump schedule status       # Show schedule state
 ```
 
-### `brain-backup doctor`
+### `brain-dump doctor`
 Check all dependencies, config, credentials, repo, paths, and schedule.
 
 ```bash
-brain-backup doctor                # Human-readable
-brain-backup doctor --json         # Machine-readable
+brain-dump doctor                # Human-readable
+brain-dump doctor --json         # Machine-readable
 ```
 
-### `brain-backup config`
+### `brain-dump config`
 Show resolved configuration.
 
 ```bash
-brain-backup config                          # Full config
-brain-backup config --path repository.backend  # Single value
+brain-dump config                          # Full config
+brain-dump config --path repository.backend  # Single value
 ```
 
 ## Supported Agent Presets
@@ -142,7 +142,7 @@ brain-backup config --path repository.backend  # Single value
 
 ## Configuration
 
-Config file: `~/.config/brain-backup/config.yaml`
+Config file: `~/.config/brain-dump/config.yaml`
 
 ```yaml
 version: 1
@@ -186,7 +186,7 @@ When a profile uses a preset:
 
 ## Credentials
 
-brain-backup never stores credentials. Set them as environment variables:
+brain-dump never stores credentials. Set them as environment variables:
 
 ### Backblaze B2
 ```bash
@@ -220,15 +220,15 @@ export RESTIC_PASSWORD="your-repo-password"
 
 ## Agent Skill
 
-brain-backup includes an [agentskills.io](https://agentskills.io) compliant skill
-at `skill/brain-backup/`. Install it in your agent's skill directory to let AI
+brain-dump includes an [agentskills.io](https://agentskills.io) compliant skill
+at `skill/brain-dump/`. Install it in your agent's skill directory to let AI
 agents trigger backups and check status.
 
 Restore always requires user confirmation — agents never auto-overwrite.
 
 ## How It Works
 
-brain-backup is a thin bash wrapper around restic:
+brain-dump is a thin bash wrapper around restic:
 
 1. **`snapshot`**: Resolves profiles → deduplicates paths → runs `restic backup`
    with appropriate tags and excludes → applies retention policy

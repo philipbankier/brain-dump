@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# lib/config.sh — Config loading + validation for brain-backup
+# lib/config.sh — Config loading + validation for brain-dump
 # Uses yq to parse YAML config file
 set -euo pipefail
 
 # Default config path
-BB_CONFIG_FILE="${BB_CONFIG_FILE:-$HOME/.config/brain-backup/config.yaml}"
+BB_CONFIG_FILE="${BB_CONFIG_FILE:-$HOME/.config/brain-dump/config.yaml}"
 
 #######################################
 # Load and return raw config YAML (strips CRLF)
@@ -19,7 +19,7 @@ BB_CONFIG_FILE="${BB_CONFIG_FILE:-$HOME/.config/brain-backup/config.yaml}"
 #######################################
 bb::config::load() {
   if [[ ! -f "$BB_CONFIG_FILE" ]]; then
-    bb::output::error "No config found. Run: brain-backup init"
+    bb::output::error "No config found. Run: brain-dump init"
     return 1
   fi
 

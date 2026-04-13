@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# brain-backup installer — curl | sh
-# Usage: curl -fsSL https://raw.githubusercontent.com/philipbankier/brain-backup/main/install.sh | bash
+# brain-dump installer — curl | sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/philipbankier/brain-dump/main/install.sh | bash
 set -euo pipefail
 
-REPO_BASE="https://raw.githubusercontent.com/philipbankier/brain-backup/main"
+REPO_BASE="https://raw.githubusercontent.com/philipbankier/brain-dump/main"
 INSTALL_BIN="${HOME}/.local/bin"
-INSTALL_SHARE="${HOME}/.local/share/brain-backup"
+INSTALL_SHARE="${HOME}/.local/share/brain-dump"
 
 # ── Colors ──────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; NC='\033[0m'
-info()  { printf "${GREEN}[brain-backup]${NC} %s\n" "$*"; }
-warn()  { printf "${YELLOW}[brain-backup]${NC} %s\n" "$*"; }
-err()   { printf "${RED}[brain-backup]${NC} %s\n" "$*" >&2; }
+info()  { printf "${GREEN}[brain-dump]${NC} %s\n" "$*"; }
+warn()  { printf "${YELLOW}[brain-dump]${NC} %s\n" "$*"; }
+err()   { printf "${RED}[brain-dump]${NC} %s\n" "$*" >&2; }
 die()   { err "$@"; exit 1; }
 
 # ── 1. OS check ─────────────────────────────────────────
 OS="$(uname -s)"
 case "$OS" in
   Darwin|Linux) ;;
-  *) die "Unsupported OS: $OS. brain-backup requires macOS or Linux." ;;
+  *) die "Unsupported OS: $OS. brain-dump requires macOS or Linux." ;;
 esac
 
 # ── 2. bash version check ──────────────────────────────
@@ -39,7 +39,7 @@ check_dep() {
 
   # Missing — offer to install via brew
   if command -v brew &>/dev/null; then
-    printf "${YELLOW}[brain-backup]${NC} %s not found. Install via brew? [Y/n] " "$name"
+    printf "${YELLOW}[brain-dump]${NC} %s not found. Install via brew? [Y/n] " "$name"
     read -r answer < /dev/tty
     case "$answer" in
       n|N|no|NO) die "$name is required. Install manually: brew install $name" ;;
@@ -65,15 +65,15 @@ download() {
   local src="$1" dest="$2"
   if ! curl -fsSL "$REPO_BASE/$src" -o "$dest" 2>/dev/null; then
     err "Failed to download $src"
-    err "Manual install: git clone https://github.com/philipbankier/brain-backup.git"
-    die "Then: cd brain-backup && ln -s \$(pwd)/brain-backup ~/.local/bin/brain-backup"
+    err "Manual install: git clone https://github.com/philipbankier/brain-dump.git"
+    die "Then: cd brain-dump && ln -s \$(pwd)/brain-dump ~/.local/bin/brain-dump"
   fi
 }
 
 # ── 7. Download main script ────────────────────────────
-info "Downloading brain-backup CLI..."
-download "brain-backup" "$INSTALL_BIN/brain-backup"
-chmod +x "$INSTALL_BIN/brain-backup"
+info "Downloading brain-dump CLI..."
+download "brain-dump" "$INSTALL_BIN/brain-dump"
+chmod +x "$INSTALL_BIN/brain-dump"
 
 # ── 8. Download lib/ ───────────────────────────────────
 info "Downloading lib/..."
@@ -112,4 +112,4 @@ fi
 
 # ── 12. Done ────────────────────────────────────────────
 echo ""
-info "✅ brain-backup installed. Run: brain-backup init"
+info "✅ brain-dump installed. Run: brain-dump init"

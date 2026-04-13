@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/output.sh — Human + JSON output formatting for brain-backup
+# lib/output.sh — Human + JSON output formatting for brain-dump
 # Uses jq for JSON output
 set -euo pipefail
 

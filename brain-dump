@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# brain-backup — Opinionated restic wrapper for AI agent memory backup
+# brain-dump — Opinionated restic wrapper for AI agent memory backup
 # Version: 0.1.0
 set -euo pipefail
 
@@ -13,8 +13,8 @@ if [[ -d "$BB_SCRIPT_DIR/lib" ]]; then
   BB_PRESET_DIR="$BB_SCRIPT_DIR/presets"
 else
   # Installed mode
-  BB_LIB_DIR="$HOME/.local/share/brain-backup/lib"
-  BB_PRESET_DIR="$HOME/.local/share/brain-backup/presets"
+  BB_LIB_DIR="$HOME/.local/share/brain-dump/lib"
+  BB_PRESET_DIR="$HOME/.local/share/brain-dump/presets"
 fi
 
 # Source libs
@@ -39,9 +39,9 @@ export BB_JSON_MODE BB_QUIET_MODE BB_VERBOSE_MODE BB_CONFIG_FILE
 #######################################
 bb::usage() {
   cat <<EOF
-brain-backup v${BB_VERSION} — Opinionated restic wrapper for AI agent memory backup
+brain-dump v${BB_VERSION} — Opinionated restic wrapper for AI agent memory backup
 
-Usage: brain-backup <command> [flags]
+Usage: brain-dump <command> [flags]
 
 Commands:
   init                 Create config and initialize restic repository
@@ -55,19 +55,19 @@ Commands:
   config               Show resolved configuration
 
 Global flags:
-  --config FILE        Path to config file (default: ~/.config/brain-backup/config.yaml)
+  --config FILE        Path to config file (default: ~/.config/brain-dump/config.yaml)
   --json               Machine-readable JSON output
   --quiet              Suppress all output except errors
   --verbose            Show restic's raw output
   --help               Show this help
   --version            Print version and exit
 
-Run 'brain-backup <command> --help' for command-specific usage.
+Run 'brain-dump <command> --help' for command-specific usage.
 EOF
 }
 
 bb::version() {
-  echo "brain-backup v${BB_VERSION}"
+  echo "brain-dump v${BB_VERSION}"
 }
 
 #######################################
@@ -101,7 +101,7 @@ cmd_init() {
         backend="$2"; shift 2 ;;
       --help)
         cat <<EOF
-Usage: brain-backup init [--backend b2|s3|local]
+Usage: brain-dump init [--backend b2|s3|local]
 
 Create config and initialize restic repository.
 Interactive if flags not provided.
@@ -111,7 +111,7 @@ Flags:
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup init --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump init --help"
         return 1 ;;
     esac
   done
@@ -261,7 +261,7 @@ retention:
 
   if [[ "$cred_ok" == "false" ]]; then
     bb::output::print ""
-    bb::output::print "Set the above credentials, then run: brain-backup snapshot"
+    bb::output::print "Set the above credentials, then run: brain-dump snapshot"
     bb::output::print "The restic repo will be initialized on first snapshot."
     return 0
   fi
@@ -271,12 +271,12 @@ retention:
 
   bb::output::print "Initializing restic repository..."
   if restic init 2>&1; then
-    bb::output::print "✅ Ready. Run: brain-backup snapshot"
+    bb::output::print "✅ Ready. Run: brain-dump snapshot"
   else
     local rc=$?
     # Repo may already exist — that's fine
     if restic cat config &>/dev/null; then
-      bb::output::print "Repository already initialized. ✅ Ready. Run: brain-backup snapshot"
+      bb::output::print "Repository already initialized. ✅ Ready. Run: brain-dump snapshot"
     else
       bb::output::error "Failed to initialize repository. Check credentials and backend config."
       return $rc
@@ -297,7 +297,7 @@ cmd_snapshot() {
       --json) BB_JSON_MODE="true"; export BB_JSON_MODE; shift ;;
       --help)
         cat <<EOF
-Usage: brain-backup snapshot [--profile NAME] [--dry-run] [--json]
+Usage: brain-dump snapshot [--profile NAME] [--dry-run] [--json]
 
 Take an incremental backup.
 
@@ -308,7 +308,7 @@ Flags:
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup snapshot --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump snapshot --help"
         return 1 ;;
     esac
   done
@@ -369,7 +369,7 @@ EOF
     i=$((i + 1))
   done
 
-  local tag_args=("--tag" "brain-backup")
+  local tag_args=("--tag" "brain-dump")
   local IFS_OLD="$IFS"
   IFS=','
   for pn in $profile_names; do
@@ -415,7 +415,7 @@ EOF
   local pruned=0 kept=0
 
   if [[ -n "$retention_flags" ]]; then
-    forget_output=$(restic forget $retention_flags --prune --tag "brain-backup" --json 2>&1) || {
+    forget_output=$(restic forget $retention_flags --prune --tag "brain-dump" --json 2>&1) || {
       bb::output::verbose "forget stderr: $forget_output"
     }
     if [[ -n "$forget_output" ]]; then
@@ -443,7 +443,7 @@ cmd_restore() {
       --dry-run) dry_run="true"; shift ;;
       --help)
         cat <<EOF
-Usage: brain-backup restore <SNAPSHOT_ID|latest> [--target DIR] [--dry-run]
+Usage: brain-dump restore <SNAPSHOT_ID|latest> [--target DIR] [--dry-run]
 
 Restore a snapshot.
 
@@ -451,12 +451,12 @@ Arguments:
   SNAPSHOT_ID   Snapshot ID or 'latest'
 
 Flags:
-  --target DIR  Restore to this directory (default: ~/brain-backup-restore-<timestamp>)
+  --target DIR  Restore to this directory (default: ~/brain-dump-restore-<timestamp>)
   --dry-run     Show what would be restored
 EOF
         return 0 ;;
       -*)
-        bb::output::error "Unknown flag: $1. See: brain-backup restore --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump restore --help"
         return 1 ;;
       *)
         if [[ -z "$snapshot_id" ]]; then
@@ -470,7 +470,7 @@ EOF
   done
 
   if [[ -z "$snapshot_id" ]]; then
-    bb::output::error "Usage: brain-backup restore <SNAPSHOT_ID|latest> [--target DIR]"
+    bb::output::error "Usage: brain-dump restore <SNAPSHOT_ID|latest> [--target DIR]"
     return 1
   fi
 
@@ -479,7 +479,7 @@ EOF
 
   # Default target
   if [[ -z "$target" ]]; then
-    target="$HOME/brain-backup-restore-$(date +%Y%m%d-%H%M%S)"
+    target="$HOME/brain-dump-restore-$(date +%Y%m%d-%H%M%S)"
   fi
 
   bb::output::print "⚠️  This will write files to ${target}. It will NOT overwrite your current agent files."
@@ -511,7 +511,7 @@ cmd_snapshot_list() {
       --json) BB_JSON_MODE="true"; export BB_JSON_MODE; shift ;;
       --help)
         cat <<EOF
-Usage: brain-backup list [--latest N] [--profile NAME] [--json]
+Usage: brain-dump list [--latest N] [--profile NAME] [--json]
 
 Show snapshot history.
 
@@ -522,7 +522,7 @@ Flags:
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup list --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump list --help"
         return 1 ;;
     esac
   done
@@ -530,7 +530,7 @@ EOF
   bb::check_deps || return 2
   bb::config::set_restic_env || return 3
 
-  local tag_args=("--tag" "brain-backup")
+  local tag_args=("--tag" "brain-dump")
   if [[ -n "$profile_filter" ]]; then
     tag_args+=("--tag" "$profile_filter")
   fi
@@ -542,7 +542,7 @@ EOF
     return 4
   }
 
-  # Filter to only brain-backup tagged
+  # Filter to only brain-dump tagged
   if [[ -n "$profile_filter" ]]; then
     snapshots=$(echo "$snapshots" | jq --arg pf "$profile_filter" '[.[] | select(.tags | index($pf))]')
   fi
@@ -564,7 +564,7 @@ cmd_status() {
       --json) BB_JSON_MODE="true"; export BB_JSON_MODE; shift ;;
       --help)
         cat <<EOF
-Usage: brain-backup status [--json]
+Usage: brain-dump status [--json]
 
 Show backup health.
 
@@ -573,7 +573,7 @@ Flags:
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup status --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump status --help"
         return 1 ;;
     esac
   done
@@ -598,7 +598,7 @@ EOF
   local last_id="none" last_time="never" age_seconds=0 age_human="N/A" total_snapshots=0
   if [[ "$repo_reachable" == "true" ]]; then
     local snap_json
-    snap_json=$(restic snapshots --tag "brain-backup" --json 2>/dev/null || echo "[]")
+    snap_json=$(restic snapshots --tag "brain-dump" --json 2>/dev/null || echo "[]")
     total_snapshots=$(echo "$snap_json" | jq 'length')
     local snap_count
     snap_count=$total_snapshots
@@ -624,7 +624,7 @@ EOF
 
   # Schedule status
   local schedule_installed="false" interval_seconds=3600 interval_human="N/A"
-  local plist_path="$HOME/Library/LaunchAgents/com.brain-backup.plist"
+  local plist_path="$HOME/Library/LaunchAgents/com.brain-dump.plist"
   if [[ -f "$plist_path" ]]; then
     schedule_installed="true"
     interval_seconds=$(echo "$config" | yq eval '.schedule.interval // 3600' -)
@@ -682,7 +682,7 @@ cmd_prune() {
       --dry-run) dry_run="true"; shift ;;
       --help)
         cat <<EOF
-Usage: brain-backup prune [--dry-run]
+Usage: brain-dump prune [--dry-run]
 
 Apply retention policy from config.
 
@@ -691,7 +691,7 @@ Flags:
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup prune --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump prune --help"
         return 1 ;;
     esac
   done
@@ -712,7 +712,7 @@ EOF
   fi
 
   local output
-  output=$(restic forget $retention_flags $dry_flag --prune --tag "brain-backup" --json 2>&1) || {
+  output=$(restic forget $retention_flags $dry_flag --prune --tag "brain-dump" --json 2>&1) || {
     local rc=$?
     bb::output::error "Prune failed."
     return 4
@@ -743,11 +743,11 @@ cmd_schedule() {
     status)
       cmd_schedule_status "$@" ;;
     "")
-      bb::output::error "Usage: brain-backup schedule <install|remove|status>"
+      bb::output::error "Usage: brain-dump schedule <install|remove|status>"
       return 1 ;;
     --help)
       cat <<EOF
-Usage: brain-backup schedule <install|remove|status>
+Usage: brain-dump schedule <install|remove|status>
 
 Manage launchd scheduled backups.
 
@@ -764,10 +764,10 @@ EOF
 }
 
 cmd_schedule_install() {
-  local plist_path="$HOME/Library/LaunchAgents/com.brain-backup.plist"
+  local plist_path="$HOME/Library/LaunchAgents/com.brain-dump.plist"
 
   if [[ -f "$plist_path" ]]; then
-    bb::output::error "Schedule already installed. Run: brain-backup schedule remove first, then install again."
+    bb::output::error "Schedule already installed. Run: brain-dump schedule remove first, then install again."
     return 1
   fi
 
@@ -779,13 +779,13 @@ cmd_schedule_install() {
 
   # Find script location
   local script_path
-  if [[ -L "$HOME/.local/bin/brain-backup" ]]; then
-    script_path="$(cd "$(dirname "$HOME/.local/bin/brain-backup")" && pwd)/brain-backup"
+  if [[ -L "$HOME/.local/bin/brain-dump" ]]; then
+    script_path="$(cd "$(dirname "$HOME/.local/bin/brain-dump")" && pwd)/brain-dump"
   else
-    script_path="$BB_SCRIPT_DIR/brain-backup"
+    script_path="$BB_SCRIPT_DIR/brain-dump"
     # If running from dev, use the dev script
     if [[ ! -f "$script_path" ]]; then
-      script_path="$HOME/.local/bin/brain-backup"
+      script_path="$HOME/.local/bin/brain-dump"
     fi
   fi
 
@@ -795,10 +795,10 @@ cmd_schedule_install() {
 
   # Generate plist from template
   local template
-  if [[ -f "$BB_SCRIPT_DIR/launchd/com.brain-backup.plist.template" ]]; then
-    template=$(cat "$BB_SCRIPT_DIR/launchd/com.brain-backup.plist.template")
+  if [[ -f "$BB_SCRIPT_DIR/launchd/com.brain-dump.plist.template" ]]; then
+    template=$(cat "$BB_SCRIPT_DIR/launchd/com.brain-dump.plist.template")
   else
-    template=$(cat "$HOME/.local/share/brain-backup/launchd/com.brain-backup.plist.template" 2>/dev/null) || {
+    template=$(cat "$HOME/.local/share/brain-dump/launchd/com.brain-dump.plist.template" 2>/dev/null) || {
       bb::output::error "plist template not found."
       return 1
     }
@@ -820,7 +820,7 @@ cmd_schedule_install() {
   uid=$(id -u)
   launchctl bootstrap "gui/${uid}" "$plist_path" 2>&1 || {
     # Already loaded? Try bootout + bootstrap
-    launchctl bootout "gui/${uid}/com.brain-backup" 2>/dev/null || true
+    launchctl bootout "gui/${uid}/com.brain-dump" 2>/dev/null || true
     launchctl bootstrap "gui/${uid}" "$plist_path" 2>&1
   }
 
@@ -829,7 +829,7 @@ cmd_schedule_install() {
 }
 
 cmd_schedule_remove() {
-  local plist_path="$HOME/Library/LaunchAgents/com.brain-backup.plist"
+  local plist_path="$HOME/Library/LaunchAgents/com.brain-dump.plist"
   local uid
   uid=$(id -u)
 
@@ -838,13 +838,13 @@ cmd_schedule_remove() {
     return 0
   fi
 
-  launchctl bootout "gui/${uid}/com.brain-backup" 2>/dev/null || true
+  launchctl bootout "gui/${uid}/com.brain-dump" 2>/dev/null || true
   rm -f "$plist_path"
   bb::output::print "✅ Schedule removed."
 }
 
 cmd_schedule_status() {
-  local plist_path="$HOME/Library/LaunchAgents/com.brain-backup.plist"
+  local plist_path="$HOME/Library/LaunchAgents/com.brain-dump.plist"
 
   if [[ -f "$plist_path" ]]; then
     local interval
@@ -853,9 +853,9 @@ cmd_schedule_status() {
     bb::output::print "Schedule: ✅ installed (every ${interval_h} hour(s))"
 
     # Check last run from log
-    if [[ -f /tmp/brain-backup.log ]]; then
+    if [[ -f /tmp/brain-dump.log ]]; then
       local last_line
-      last_line=$(tail -1 /tmp/brain-backup.log 2>/dev/null || echo "")
+      last_line=$(tail -1 /tmp/brain-dump.log 2>/dev/null || echo "")
       if [[ -n "$last_line" ]]; then
         bb::output::print "Last run output: $last_line"
       fi
@@ -874,13 +874,13 @@ cmd_doctor() {
       --json) BB_JSON_MODE="true"; export BB_JSON_MODE; shift ;;
       --help)
         cat <<EOF
-Usage: brain-backup doctor [--json]
+Usage: brain-dump doctor [--json]
 
 Check dependencies, config, credentials, repo, paths, and schedule.
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup doctor --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump doctor --help"
         return 1 ;;
     esac
   done
@@ -994,7 +994,7 @@ EOF
   fi
 
   # 11. Schedule status
-  local plist_path="$HOME/Library/LaunchAgents/com.brain-backup.plist"
+  local plist_path="$HOME/Library/LaunchAgents/com.brain-dump.plist"
   if [[ -f "$plist_path" ]]; then
     local sched_int
     sched_int=$(plutil -extract StartInterval raw "$plist_path" 2>/dev/null || echo "unknown")
@@ -1030,7 +1030,7 @@ cmd_config() {
       --path) path_key="$2"; shift 2 ;;
       --help)
         cat <<EOF
-Usage: brain-backup config [--path KEY]
+Usage: brain-dump config [--path KEY]
 
 Show resolved configuration.
 
@@ -1039,7 +1039,7 @@ Flags:
 EOF
         return 0 ;;
       *)
-        bb::output::error "Unknown flag: $1. See: brain-backup config --help"
+        bb::output::error "Unknown flag: $1. See: brain-dump config --help"
         return 1 ;;
     esac
   done
@@ -1090,7 +1090,7 @@ main() {
         bb::usage
         exit 0 ;;
       --*)
-        echo "Unknown flag: $1. See: brain-backup --help" >&2
+        echo "Unknown flag: $1. See: brain-dump --help" >&2
         exit 1 ;;
       *)
         command="$1"
@@ -1111,7 +1111,7 @@ main() {
     doctor)    cmd_doctor "$@" ;;
     config)    cmd_config "$@" ;;
     *)
-      bb::output::error "Unknown command: $command. Run: brain-backup --help"
+      bb::output::error "Unknown command: $command. Run: brain-dump --help"
       exit 1 ;;
   esac
 }

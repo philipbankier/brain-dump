@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# lib/presets.sh — Preset resolution and merge logic for brain-backup
+# lib/presets.sh — Preset resolution and merge logic for brain-dump
 set -euo pipefail
 
 # Preset directory (installed location)
-BB_PRESET_DIR="${BB_PRESET_DIR:-$HOME/.local/share/brain-backup/presets}"
+BB_PRESET_DIR="${BB_PRESET_DIR:-$HOME/.local/share/brain-dump/presets}"
 
 # Fallback: check relative to script (dev mode)
 if [[ ! -d "$BB_PRESET_DIR" ]]; then
